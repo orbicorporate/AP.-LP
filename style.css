@@ -343,3 +343,9 @@ to{transform:none}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none !important;transition:none !important}
 html{scroll-behavior:auto}
 }
+
+.wa-group-wrap{display:flex;justify-content:center;margin-top:22px}
+.wa-group-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;background:#25D366;color:#0B0A0C;font-weight:700;font-size:.92rem;text-decoration:none;border-radius:4px;transition:background .25s,transform .2s}
+.wa-group-btn .ico{width:19px;height:19px}
+.wa-group-btn:hover{background:#1EBE5A;transform:translateY(-2px)}
+@media (max-width: 560px){.wa-group-btn{padding:13px 20px;font-size:.86rem}}
