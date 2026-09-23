@@ -236,6 +236,12 @@ svg{display:block}
 .cta p{margin-top:12px;font-size:1.15rem;color:rgba(255,255,255,.86)}
 .dest{display:flex;flex-wrap:wrap;gap:10px}
 .dest span{padding:12px 18px;border:1px solid rgba(255,255,255,.35);font-weight:600;font-size:.95rem;background:rgba(255,255,255,.06)}
+.dest-link{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid rgba(255,255,255,.35);border-radius:2px;font-weight:600;font-size:.95rem;background:rgba(255,255,255,.06);color:#fff;text-decoration:none;position:relative;transition:background .25s,transform .25s,border-color .25s,box-shadow .25s;animation:dest-pulse 2.6s ease-out infinite}
+.dest-link .ico{width:18px;height:18px;flex:none;fill:#25D366;stroke:none;transition:fill .25s}
+.dest-link:hover,.dest-link:focus-visible{background:#25D366;border-color:#25D366;color:#0B0A0C;transform:translateY(-2px);box-shadow:0 12px 26px -8px rgba(37,211,102,.6);animation:none}
+.dest-link:hover .ico,.dest-link:focus-visible .ico{fill:#0B0A0C}
+@keyframes dest-pulse{0%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}70%{box-shadow:0 0 0 12px rgba(37,211,102,0)}100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}}
+@media (prefers-reduced-motion: reduce){.dest-link{animation:none}}
 .cta .ghost{position:absolute;right:-40px;bottom:-60px;width:340px;fill:rgba(255,255,255,.07);z-index:0;pointer-events:none}
 @media (max-width: 900px){.cta .wrap{grid-template-columns:1fr}
 .cta .bubble{width:64px;height:64px}
