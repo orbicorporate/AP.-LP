@@ -405,6 +405,16 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 .gate-go{width:100%;height:54px;border:0;border-radius:999px;cursor:pointer;color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#ff4d57,#d7192a 60%,#9a0f18);box-shadow:0 14px 30px -12px rgba(225,29,42,.95),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .15s}
 .gate-go:active{transform:scale(.98)}
 .gate-go:focus-visible{outline:2px solid rgba(255,255,255,.8);outline-offset:3px}
+.gate-form{width:100%;display:flex;flex-direction:column;gap:12px}
+.gate-go[disabled]{opacity:.7;cursor:wait}
+.gate-wait,.gate-ok{position:relative;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;color:#fff;margin-top:8px}
+.gate-wait{background:rgba(255,255,255,.08);color:#ff8a80}
+.gate-pulse{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,59,70,.7);animation:gp 1.6s ease-out infinite}
+@keyframes gp{from{transform:scale(1);opacity:.9}to{transform:scale(1.45);opacity:0}}
+.gate-ok{background:linear-gradient(135deg,#3ccf91,#1f9b66);box-shadow:0 12px 30px -10px rgba(60,207,145,.8)}
+.gate-status{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.07);color:#f4d2cf;font-size:13px;font-weight:600}
+.gate-link{background:none;border:0;color:#a3a3ad;font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:8px}
+.gate-link:hover{color:#fff}
 .gate-foot{color:#7c7c86;font-size:12px;margin-top:6px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
@@ -1827,7 +1837,7 @@ function maybeAutoTour(){
 
 
 /* ============ entrada e registro de acessos ============ */
-const TRK={url:'https://cwalqzwbsvpvbbhdmlch.supabase.co/rest/v1/rpc/apronova_registrar',key:'sb_publishable_CmKCtfBWpAwsyn9tjkzfcQ_W6wPqrYa'};
+const TRK={url:'https://fqejpktqanhugphknlwx.supabase.co/rest/v1/rpc/apronova_registrar',key:'sb_publishable_WhUKb2sZFAfYSAzCqltFQg_algQP3Zu'};
 const T={sid:null,name:'',start:0,active:0,lastTick:0,paused:false,cur:null,telas:{},eventos:[],timer:null};
 const VIEW_NAME={master:'Painel Master',inicio:'Início',leads:'Leads',agenda:'Agenda',nutricao:'Playbook',materiais:'Materiais',desempenho:'Desempenho',equipe:'Equipe'};
 function trkTick(){const now=Date.now();if(!T.paused&&T.lastTick){const d=Math.min(now-T.lastTick,60000);T.active+=d;if(T.cur){const k=VIEW_NAME[T.cur]||T.cur;T.telas[k]=(T.telas[k]||0)+d}}T.lastTick=now}
@@ -1835,7 +1845,7 @@ function trkEv(e){if(!T.sid)return;T.eventos.push({t:new Date().toISOString(),e:
 function trkView(v){if(!T.sid||v===T.cur)return;trkTick();T.cur=v;trkEv('abriu a tela '+(VIEW_NAME[v]||v))}
 function trkSend(final){if(!T.sid)return;trkTick();const telas={};Object.entries(T.telas).forEach(([k,ms])=>telas[k]=Math.round(ms/1000));
  const ua=navigator.userAgent,dev=(/Mobi|Android|iPhone/i.test(ua)?'Celular':'Computador')+' · '+(/Edg\//.test(ua)?'Edge':/Chrome\//.test(ua)?'Chrome':/Safari\//.test(ua)?'Safari':/Firefox\//.test(ua)?'Firefox':'Navegador')+' · '+innerWidth+'×'+innerHeight;
- const p={sid:T.sid,nome:T.name,inicio:new Date(T.start).toISOString(),segundos:Math.round(T.active/1000),telas,eventos:T.eventos,dispositivo:dev};
+ const p={sid:T.sid,pedido:T.pedido||null,nome:T.name,inicio:new Date(T.start).toISOString(),segundos:Math.round(T.active/1000),telas,eventos:T.eventos,dispositivo:dev};
  try{fetch(TRK.url,{method:'POST',keepalive:!!final,headers:{'apikey':TRK.key,'Content-Type':'application/json'},body:JSON.stringify({p})}).catch(()=>{})}catch(e){}}
 function trkStart(name){
  T.sid=(Date.now().toString(36)+Math.random().toString(36).slice(2,12)).toLowerCase().replace(/[^a-z0-9]/g,'');T.name=name;T.start=Date.now();T.lastTick=Date.now();
@@ -1844,28 +1854,70 @@ function trkStart(name){
  document.addEventListener('visibilitychange',()=>{if(document.hidden){trkTick();T.paused=true;trkEv('saiu da aba');trkSend(true)}else{T.paused=false;T.lastTick=Date.now();trkEv('voltou para a aba')}});
  addEventListener('pagehide',()=>{trkEv('fechou a página');trkSend(true)});
 }
+const RPC=name=>'https://fqejpktqanhugphknlwx.supabase.co/rest/v1/rpc/'+name;
+async function rpc(name,body){const r=await fetch(RPC(name),{method:'POST',headers:{'apikey':TRK.key,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('rpc '+r.status);const t=await r.text();try{return JSON.parse(t)}catch(e){return t}}
+function lsGet(k){try{return localStorage.getItem(k)||''}catch(e){return''}}
+function lsSet(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+function devName(){const ua=navigator.userAgent;return (/Mobi|Android|iPhone/i.test(ua)?'Celular':'Computador')+' · '+(/Edg\//.test(ua)?'Edge':/Chrome\//.test(ua)?'Chrome':/Safari\//.test(ua)?'Safari':/Firefox\//.test(ua)?'Firefox':'Navegador')}
+let gatePoll=null;
+function gateShell(inner){let g=document.getElementById('gate');if(!g){g=document.createElement('div');g.id='gate';g.setAttribute('role','dialog');g.setAttribute('aria-modal','true');document.body.appendChild(g)}
+  g.innerHTML=`<div class="gate-card"><img class="gate-sym" src="${LOGO_SYM}" alt=""><img class="gate-word" src="${LOGO_WORD}" alt="APRONOVA"><div class="gate-tag">Leads · nutrição de vendas</div>${inner}<div class="gate-foot">Versão de apresentação · dados fictícios</div></div>`;return g}
 function showGate(){
- let saved='';try{saved=localStorage.getItem('an_nome')||''}catch(e){}
- const g=document.createElement('div');g.id='gate';g.setAttribute('role','dialog');g.setAttribute('aria-modal','true');g.setAttribute('aria-labelledby','gateT');
- g.innerHTML=`<form class="gate-card" id="gateForm" novalidate>
-   <img class="gate-sym" src="${LOGO_SYM}" alt="">
-   <img class="gate-word" src="${LOGO_WORD}" alt="APRONOVA">
-   <div class="gate-tag">Leads · nutrição de vendas</div>
-   <h1 id="gateT">Que bom te ver por aqui</h1>
-   <p>Digite seu nome para acessar a apresentação do sistema.</p>
-   <label class="gate-in"><span class="sr">Seu nome</span>${ico('team',18)}<input id="gateName" name="nome" autocomplete="name" placeholder="Seu nome" value="${esc(saved)}" maxlength="60"></label>
-   <div class="gate-err" id="gateErr" hidden>Digite seu nome para continuar.</div>
-   <button class="gate-go" type="submit">Entrar${ico('right',18)}</button>
-   <div class="gate-foot">Versão de apresentação · dados fictícios</div>
- </form>`;
- document.body.appendChild(g);
- setTimeout(()=>{const i=$('#gateName');if(i)i.focus()},300);
- $('#gateForm').addEventListener('submit',e=>{e.preventDefault();const n=$('#gateName').value.trim().replace(/\s+/g,' ');
-  if(n.length<2){$('#gateErr').hidden=false;$('#gateName').focus();return}
-  try{localStorage.setItem('an_nome',n)}catch(e){}
-  if(S.team.gestor){S.team.gestor.apelido=n}
-  trkStart(n);g.classList.add('out');setTimeout(()=>{g.remove();renderAll();maybeAutoTour()},450);
- });
+  const pid=lsGet('an_pedido');
+  if(pid){gateWait(pid,true)}else gateAsk();
+}
+function gateAsk(err){
+  clearInterval(gatePoll);
+  const g=gateShell(`<h1 id="gateT">Acesso restrito</h1><p>Esta apresentação é liberada pelo administrador. Informe seu nome e peça a liberação.</p>
+  <form id="gateForm" class="gate-form" novalidate>
+    <label class="gate-in"><span class="sr">Seu nome</span>${ico('team',18)}<input id="gateName" autocomplete="name" placeholder="Seu nome" value="${esc(lsGet('an_nome'))}" maxlength="60"></label>
+    <label class="gate-in"><span class="sr">WhatsApp ou e-mail (opcional)</span>${ico('chat',18)}<input id="gateCont" autocomplete="tel" placeholder="WhatsApp ou e-mail (opcional)" maxlength="80"></label>
+    <div class="gate-err" id="gateErr" ${err?'':'hidden'}>${err||''}</div>
+    <button class="gate-go" type="submit">${ico('shield',18)}Pedir liberação ao admin</button>
+  </form>`);
+  g.setAttribute('aria-labelledby','gateT');
+  setTimeout(()=>{const i=$('#gateName');if(i)i.focus()},250);
+  $('#gateForm').addEventListener('submit',async e=>{e.preventDefault();const n=$('#gateName').value.trim().replace(/\s+/g,' ');
+    if(n.length<2){$('#gateErr').textContent='Digite seu nome para pedir a liberação.';$('#gateErr').hidden=false;$('#gateName').focus();return}
+    const id=(Date.now().toString(36)+Math.random().toString(36).slice(2,12)).toLowerCase().replace(/[^a-z0-9]/g,'');
+    const btn=e.submitter||$('.gate-go');btn.disabled=true;btn.textContent='Enviando pedido…';
+    try{await rpc('apronova_pedir',{p:{id,nome:n,contato:$('#gateCont').value.trim(),dispositivo:devName()}});lsSet('an_pedido',id);lsSet('an_nome',n);gateWait(id)}
+    catch(x){gateAsk('Não foi possível enviar o pedido agora. Verifique a internet e tente de novo.')}
+  });
+}
+function gateWait(id,quiet){
+  const g=gateShell(`<div class="gate-wait"><span class="gate-pulse"></span>${ico('clock',26)}</div><h1 id="gateT">Pedido enviado</h1>
+  <p>Olá, ${esc(lsGet('an_nome')||'tudo bem')}! Seu pedido chegou ao administrador. Assim que ele liberar, esta tela abre sozinha. Pode deixar a página aberta.</p>
+  <div class="gate-status" aria-live="polite">${ico('shield',16)}<span id="gateStat">Aguardando liberação…</span></div>
+  <button class="gate-link" id="gateCancel" type="button">Cancelar pedido</button>`);
+  g.setAttribute('aria-labelledby','gateT');
+  $('#gateCancel').onclick=()=>{lsSet('an_pedido','');gateAsk()};
+  const check=async()=>{try{const st=await rpc('apronova_status',{pid:id});
+      if(st==='liberado'){clearInterval(gatePoll);gateEnter(id)}
+      else if(st==='negado'){clearInterval(gatePoll);lsSet('an_pedido','');gateDenied()}
+      else if(st===null||st===''||st==='null'){clearInterval(gatePoll);lsSet('an_pedido','');gateAsk()}
+      else{const el=$('#gateStat');if(el)el.textContent='Aguardando liberação…'}
+    }catch(x){const el=$('#gateStat');if(el)el.textContent='Sem conexão. Tentando de novo…'}};
+  clearInterval(gatePoll);gatePoll=setInterval(check,4000);check();
+}
+function gateDenied(){
+  const g=gateShell(`<h1 id="gateT">Pedido não liberado</h1><p>O administrador não liberou este acesso. Se achar que foi engano, fale com quem enviou o link.</p><button class="gate-go" id="gateAgain" type="button">Pedir novamente</button>`);
+  $('#gateAgain').onclick=()=>gateAsk();
+}
+function gateEnter(id){
+  const g=gateShell(`<div class="gate-ok">${ico('check',26)}</div><h1 id="gateT">Acesso liberado!</h1><p>Confirme seu nome para entrar. Em seguida um tour rápido mostra como tudo funciona.</p>
+  <form id="gateForm" class="gate-form" novalidate>
+    <label class="gate-in"><span class="sr">Seu nome</span>${ico('team',18)}<input id="gateName" autocomplete="name" placeholder="Seu nome" value="${esc(lsGet('an_nome'))}" maxlength="60"></label>
+    <div class="gate-err" id="gateErr" hidden>Digite seu nome para continuar.</div>
+    <button class="gate-go" type="submit">Entrar${ico('right',18)}</button>
+  </form>`);
+  g.setAttribute('aria-labelledby','gateT');
+  setTimeout(()=>{const i=$('#gateName');if(i){i.focus();i.select()}},250);
+  $('#gateForm').addEventListener('submit',e=>{e.preventDefault();const n=$('#gateName').value.trim().replace(/\s+/g,' ');
+    if(n.length<2){$('#gateErr').hidden=false;$('#gateName').focus();return}
+    lsSet('an_nome',n);if(S.team.gestor){S.team.gestor.apelido=n}
+    T.pedido=id;trkStart(n);g.classList.add('out');setTimeout(()=>{g.remove();renderAll();maybeAutoTour()},450);
+  });
 }
 
 /* ============ inicialização ============ */
