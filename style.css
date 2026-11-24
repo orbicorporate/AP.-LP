@@ -152,6 +152,7 @@ svg{display:block}
 .cc.wide p{color:color-mix(in srgb,var(--bg) 72%,transparent)}
 .cc.wide .ib{background:color-mix(in srgb,var(--bg) 10%,transparent);color:var(--red-hot)}
 .cc.wide .h3{font-size:clamp(1.5rem,2.4vw,2rem)}
+.cc .btn-sm{justify-self:start;margin-top:6px;padding:12px 20px;font-size:.95rem}
 .say{display:grid;gap:12px}
 .say .row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;padding:18px 20px;border:1px solid color-mix(in srgb,var(--bg) 16%,transparent)}
 .say .row.yes{background:color-mix(in srgb,var(--bg) 6%,transparent)}
